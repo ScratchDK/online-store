@@ -5,7 +5,7 @@ base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
 class Product:
-
+    """Класс для инициализации продуктов"""
     name: str
     description: str
     price: float
@@ -19,7 +19,8 @@ class Product:
 
 
 class Category:
-
+    """Класс для инициализации категорий, в том числе полученных из json файлов,
+    а так же для подсчета количества продуктов и категорий"""
     name: str
     description: str
     products: list
@@ -43,6 +44,8 @@ class Category:
             data = json.load(file_json)
 
         categories_ = []
+
+        Category.category_count = 0
 
         for el in data:
             cat_name = el["name"]

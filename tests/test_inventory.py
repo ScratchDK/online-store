@@ -35,7 +35,7 @@ def test_category_read_json() -> None:
     )
     assert len(category_read_json[0].products) == 3
     assert category_read_json[0].product_count == 3
-    # assert category_read_json[0].category_count == 2
+    assert category_read_json[0].category_count == 2
 
     assert category_read_json[1].name == "Телевизоры"
     assert category_read_json[1].description == (
@@ -44,4 +44,4 @@ def test_category_read_json() -> None:
     )
     assert len(category_read_json[1].products) == 1
     assert category_read_json[1].product_count == 1
-    # assert category_read_json[1].category_count == 2
+    assert category_read_json[1].category_count == 2
