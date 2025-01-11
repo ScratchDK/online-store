@@ -16,6 +16,11 @@ def second_product():
 
 
 @pytest.fixture
+def third_product():
+    return Product("Google Pixel 8", "128GB, Розовый цвет, 50MP камера", 65000.0, 20)
+
+
+@pytest.fixture
 def category():
     return Category("Смартфоны",
                     "Смартфоны, как средство не только коммуникации,"
