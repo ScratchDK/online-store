@@ -1,5 +1,6 @@
 import json
 import os
+from typing import Any
 
 base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -9,7 +10,7 @@ class Product:
 
     name: str
     description: str
-    price: float
+    __price: float
     quantity: int
 
     created_products: list = []
@@ -20,8 +21,14 @@ class Product:
         self.__price = price
         self.quantity = quantity
 
+    def __str__(self) -> str:
+        return f"{self.name}, {self.price} руб. Остаток: {self.quantity} шт."
+
+    def __add__(self, other: Any) -> Any:
+        return (self.price * self.quantity) + (other.price * other.quantity)
+
     @classmethod
-    def new_product(cls, product: dict):
+    def new_product(cls, product: dict) -> Any:
         created_products = Category.get_products()
 
         for el in created_products:
@@ -61,7 +68,7 @@ class Category:
 
     name: str
     description: str
-    products: list
+    __products: list
 
     list_products: list = []
 
@@ -77,7 +84,7 @@ class Category:
         Category.category_count += 1
         self.product_count = len(products)
 
-    def add_product(self, product):
+    def add_product(self, product: Any) -> None:
         self.__products.append(product)
         self.product_count += 1
 
@@ -85,11 +92,17 @@ class Category:
     def get_products() -> list:
         return Category.list_products
 
+    def __str__(self) -> str:
+        total_number = 0
+        for el in self.__products:
+            total_number += el.quantity
+        return f"{self.name}, количество продуктов: {total_number} шт."
+
     @property
     def products(self) -> str:
         product_str = ""
         for el in self.__products:
-            product_str += f"{el.name}, {el.price} руб. Остаток: {el.quantity} шт.\n"
+            product_str += f"{str(el)}\n"
         return product_str
 
     @staticmethod
@@ -111,3 +124,23 @@ class Category:
             categories_.append(cat_obj)
 
         return categories_
+
+
+class IterationCategory:
+    """Класс позволяет перебирать продукты одной категорий"""
+
+    def __init__(self, cat_obj: Any) -> None:
+        self.cat = cat_obj
+        self.index = 0
+
+    def __iter__(self) -> Any:
+        self.index = 0
+        return self
+
+    def __next__(self) -> Any:
+        if self.index < len(self.cat.list_products):
+            product = self.cat.list_products[self.index]
+            self.index += 1
+            return product
+        else:
+            raise StopIteration
