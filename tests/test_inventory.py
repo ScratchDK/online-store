@@ -1,7 +1,11 @@
-from src.inventory import Category
+from unittest.mock import patch
+
+import pytest
+
+from src.inventory import Category, Product
 
 
-def test_product_init(first_product, second_product) -> None:
+def test_product_init(first_product: Product, second_product: Product) -> None:
     assert first_product.name == "Samsung Galaxy S23 Ultra"
     assert first_product.description == "256GB, Серый цвет, 200MP камера"
     assert first_product.price == 180000.0
@@ -13,16 +17,38 @@ def test_product_init(first_product, second_product) -> None:
     assert second_product.quantity == 8
 
 
-def test_category_init(category) -> None:
+def test_category_init(category: Category) -> None:
     assert category.name == "Смартфоны"
     assert category.description == (
-        "Смартфоны, как средство не только коммуникации, "
-        "но и получения дополнительных функций для удобства жизни"
+        "Смартфоны, как средство не только коммуникации, " "но и получения дополнительных функций для удобства жизни"
     )
-    assert len(category.products) == 2
+    assert category.products == (
+        "Samsung Galaxy S23 Ultra, 180000.0 руб. Остаток: 5 шт.\n" "Iphone 15, 210000.0 руб. Остаток: 8 шт.\n"
+    )
 
     assert category.product_count == 2
     assert category.category_count == 1
+
+
+def test_new_product(category: Category) -> None:
+    new_product1 = Product.new_product(
+        {
+            "name": "Samsung Galaxy S23 Ultra",
+            "description": "256GB, Серый цвет, 200MP камера",
+            "price": 180000.0,
+            "quantity": 11,
+        }
+    )
+
+    new_product2 = Product.new_product(
+        {"name": "Google Pixel 8", "description": "128GB, Розовый цвет, 50MP камера", "price": 65000.0, "quantity": 20}
+    )
+    assert new_product1.quantity == 16
+
+    assert new_product2.name == "Google Pixel 8"
+    assert new_product2.description == "128GB, Розовый цвет, 50MP камера"
+    assert new_product2.price == 65000.0
+    assert new_product2.quantity == 20
 
 
 def test_category_read_json() -> None:
@@ -30,18 +56,34 @@ def test_category_read_json() -> None:
 
     assert category_read_json[0].name == "Смартфоны"
     assert category_read_json[0].description == (
-        "Смартфоны, как средство не только коммуникации, "
-        "но и получение дополнительных функций для удобства жизни"
+        "Смартфоны, как средство не только коммуникации, " "но и получение дополнительных функций для удобства жизни"
     )
-    assert len(category_read_json[0].products) == 3
     assert category_read_json[0].product_count == 3
     assert category_read_json[0].category_count == 2
 
     assert category_read_json[1].name == "Телевизоры"
     assert category_read_json[1].description == (
-        "Современный телевизор, который позволяет наслаждаться просмотром, "
-        "станет вашим другом и помощником"
+        "Современный телевизор, который позволяет наслаждаться просмотром, " "станет вашим другом и помощником"
     )
-    assert len(category_read_json[1].products) == 1
     assert category_read_json[1].product_count == 1
     assert category_read_json[1].category_count == 2
+
+
+def test_add_product(category: Category, third_product: Product) -> None:
+    category.add_product(third_product)
+    assert category.products == (
+        "Samsung Galaxy S23 Ultra, 180000.0 руб. Остаток: 5 шт.\n"
+        "Iphone 15, 210000.0 руб. Остаток: 8 шт.\n"
+        "Google Pixel 8, 65000.0 руб. Остаток: 20 шт.\n"
+    )
+    assert category.product_count == 3
+
+
+@pytest.mark.parametrize(
+    "user_input, new_price, expected",
+    [("Y", 50000.0, 50000.0), ("n", 50000.0, 65000.0), (["Да", "n"], 50000.0, 65000.0)],
+)
+def test_price_change(user_input: str, new_price: float, expected: float, third_product: Product) -> None:
+    with patch("builtins.input", side_effect=user_input):
+        third_product.price = new_price
+        assert third_product.price == expected
