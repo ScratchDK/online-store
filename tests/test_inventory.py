@@ -2,7 +2,7 @@ from unittest.mock import patch
 
 import pytest
 
-from src.inventory import Category, Product
+from src.inventory import Category, IterationCategory, Product
 
 
 def test_product_init(first_product: Product, second_product: Product) -> None:
@@ -69,7 +69,7 @@ def test_category_read_json() -> None:
     assert category_read_json[1].category_count == 2
 
 
-def test_add_product(category: Category, third_product: Product) -> None:
+def test_add_category(category: Category, third_product: Product) -> None:
     category.add_product(third_product)
     assert category.products == (
         "Samsung Galaxy S23 Ultra, 180000.0 руб. Остаток: 5 шт.\n"
@@ -87,3 +87,30 @@ def test_price_change(user_input: str, new_price: float, expected: float, third_
     with patch("builtins.input", side_effect=user_input):
         third_product.price = new_price
         assert third_product.price == expected
+
+
+def test_add_product(first_product: Product, second_product: Product, third_product: Product) -> None:
+    assert (first_product + second_product) == 2580000.0
+    assert (first_product + third_product) == 2200000.0
+    assert (second_product + third_product) == 2980000.0
+
+
+def test_str_product(first_product: Product, second_product: Product, third_product: Product) -> None:
+    assert str(first_product) == "Samsung Galaxy S23 Ultra, 180000.0 руб. Остаток: 5 шт."
+    assert str(second_product) == "Iphone 15, 210000.0 руб. Остаток: 8 шт."
+    assert str(third_product) == "Google Pixel 8, 65000.0 руб. Остаток: 20 шт."
+
+
+def test_str_category(category: Category) -> None:
+    assert str(category) == "Смартфоны, количество продуктов: 13 шт."
+
+
+def test_iteration_category(category: Category) -> None:
+    iterator = IterationCategory(category)
+    iter(iterator)  # Переобпределяем итер чтобы проверить что индекс сбросился на 0
+    assert iterator.index == 0
+    assert next(iterator).name == "Samsung Galaxy S23 Ultra"
+    assert next(iterator).name == "Iphone 15"
+
+    with pytest.raises(StopIteration):
+        next(iterator)
