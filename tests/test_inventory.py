@@ -2,7 +2,7 @@ from unittest.mock import patch
 
 import pytest
 
-from src.inventory import Category, IterationCategory, Product
+from src.inventory import Category, IterationCategory, LawnGrass, Product, Smartphone
 
 
 def test_product_init(first_product: Product, second_product: Product) -> None:
@@ -78,6 +78,11 @@ def test_add_category(category: Category, third_product: Product) -> None:
     )
     assert category.product_count == 3
 
+    try:
+        category.add_product("Not a product")
+    except TypeError as e:
+        assert str(e) == "Вы пытаетесь добавить не продукт!!"
+
 
 @pytest.mark.parametrize(
     "user_input, new_price, expected",
@@ -89,10 +94,16 @@ def test_price_change(user_input: str, new_price: float, expected: float, third_
         assert third_product.price == expected
 
 
-def test_add_product(first_product: Product, second_product: Product, third_product: Product) -> None:
+def test_add_product(first_product: Product, second_product: Product, third_product: Product,
+                     first_smartphone: Smartphone, second_smartphone: Smartphone, first_grass: LawnGrass) -> None:
     assert (first_product + second_product) == 2580000.0
     assert (first_product + third_product) == 2200000.0
     assert (second_product + third_product) == 2980000.0
+    assert (first_smartphone + second_smartphone) == 2580000.0
+    try:
+        assert (first_smartphone + first_grass) == 910000.0
+    except TypeError as e:
+        assert str(e) == "Можно складывать только продукты одного класса!"
 
 
 def test_str_product(first_product: Product, second_product: Product, third_product: Product) -> None:
