@@ -25,9 +25,9 @@ class Product:
         return f"{self.name}, {self.price} руб. Остаток: {self.quantity} шт."
 
     def __add__(self, other: Any) -> Any:
-        if self.__class__ == other.__class__:
+        if type(other) is self.__class__:
             return (self.price * self.quantity) + (other.price * other.quantity)
-        raise TypeError("Можно складывать только продукты одного класса!")
+        raise TypeError("Можно складывать только продукты одной группы!")
 
     @classmethod
     def new_product(cls, product: dict) -> Any:
