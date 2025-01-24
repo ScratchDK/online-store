@@ -2,10 +2,13 @@ import json
 import os
 from typing import Any
 
+from src.abstractions import BaseEntity, BaseProduct
+from src.mixin import PrintMixin
+
 base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
-class Product:
+class Product(BaseProduct, PrintMixin):
     """Класс для инициализации продуктов"""
 
     name: str
@@ -20,6 +23,15 @@ class Product:
         self.description = description
         self.__price = price
         self.quantity = quantity
+        super().__init__()
+
+    def __eq__(self, other: Any) -> Any:
+        if isinstance(other, Product):
+            return (self.name == other.name and
+                    self.description == other.description and
+                    self.price == other.price and
+                    self.quantity == other.quantity)
+        return False
 
     def __str__(self) -> str:
         return f"{self.name}, {self.price} руб. Остаток: {self.quantity} шт."
@@ -66,6 +78,7 @@ class Product:
 
 class Smartphone(Product):
     """Дочерний класс для инициализации смартфонов"""
+
     def __init__(self, name: str, description: str, price: float, quantity: int,
                  efficiency: float, model: str, memory: int, color: str):
         super().__init__(name, description, price, quantity)
@@ -77,6 +90,7 @@ class Smartphone(Product):
 
 class LawnGrass(Product):
     """Дочерний класс для инициализации газонов"""
+
     def __init__(self, name: str, description: str, price: float, quantity: int,
                  country: str, germination_period: str, color: str):
         super().__init__(name, description, price, quantity)
@@ -85,7 +99,7 @@ class LawnGrass(Product):
         self.color = color
 
 
-class Category:
+class Category(BaseEntity):
     """Класс для инициализации категорий, в том числе полученных из json файлов,
     а так же для подсчета количества продуктов и категорий"""
 
@@ -169,3 +183,24 @@ class IterationCategory:
             return product
         else:
             raise StopIteration
+
+
+class Order(BaseEntity):
+    def __init__(self, name: str, quantity: int, price: float):
+        self.products = Category.get_products()
+        self.name = name
+        self.quantity = self.__check_quantity(quantity)
+        self.total_price = price * quantity if type(self.quantity) is int else 0
+
+    def __check_quantity(self, quantity: int) -> int | str:
+        for el in self.products:
+            if self.name == el.name and quantity <= el.quantity:
+                el.quantity -= quantity
+                return quantity
+        return "Не возможно списать товар так как количество списываемого товара превышает количество в наличии!"
+
+    def __str__(self) -> str:
+        return f"Заказ: {self.name}, Количество: {self.quantity}, Итоговая стоимость: {self.total_price}"
+
+    def get_products(self) -> list:
+        return self.products
