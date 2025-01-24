@@ -25,7 +25,9 @@ class Product:
         return f"{self.name}, {self.price} руб. Остаток: {self.quantity} шт."
 
     def __add__(self, other: Any) -> Any:
-        return (self.price * self.quantity) + (other.price * other.quantity)
+        if type(other) is self.__class__:
+            return (self.price * self.quantity) + (other.price * other.quantity)
+        raise TypeError("Можно складывать только продукты одной группы!")
 
     @classmethod
     def new_product(cls, product: dict) -> Any:
@@ -62,6 +64,27 @@ class Product:
                 return
 
 
+class Smartphone(Product):
+    """Дочерний класс для инициализации смартфонов"""
+    def __init__(self, name: str, description: str, price: float, quantity: int,
+                 efficiency: float, model: str, memory: int, color: str):
+        super().__init__(name, description, price, quantity)
+        self.efficiency = efficiency
+        self.model = model
+        self.memory = memory
+        self.color = color
+
+
+class LawnGrass(Product):
+    """Дочерний класс для инициализации газонов"""
+    def __init__(self, name: str, description: str, price: float, quantity: int,
+                 country: str, germination_period: str, color: str):
+        super().__init__(name, description, price, quantity)
+        self.country = country
+        self.germination_period = germination_period
+        self.color = color
+
+
 class Category:
     """Класс для инициализации категорий, в том числе полученных из json файлов,
     а так же для подсчета количества продуктов и категорий"""
@@ -85,6 +108,8 @@ class Category:
         self.product_count = len(products)
 
     def add_product(self, product: Any) -> None:
+        if issubclass(product.__class__, Product) is False:
+            raise TypeError("Вы пытаетесь добавить не продукт!!")
         self.__products.append(product)
         self.product_count += 1
 
