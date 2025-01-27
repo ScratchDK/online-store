@@ -2,7 +2,7 @@ from unittest.mock import patch
 
 import pytest
 
-from src.inventory import Category, IterationCategory, LawnGrass, Product, Smartphone
+from src.inventory import Category, IterationCategory, LawnGrass, Order, Product, Smartphone
 
 
 def test_product_init(first_product: Product, second_product: Product) -> None:
@@ -103,7 +103,7 @@ def test_add_product(first_product: Product, second_product: Product, third_prod
     try:
         assert (first_smartphone + first_grass) == 910000.0
     except TypeError as e:
-        assert str(e) == "Можно складывать только продукты одного класса!"
+        assert str(e) == "Можно складывать только продукты одной группы!"
 
 
 def test_str_product(first_product: Product, second_product: Product, third_product: Product) -> None:
@@ -125,3 +125,33 @@ def test_iteration_category(category: Category) -> None:
 
     with pytest.raises(StopIteration):
         next(iterator)
+
+
+def test_print_mixin(capsys) -> None:
+    Product("Samsung Galaxy S23 Ultra", "256GB, Серый цвет, 200MP камера", 180000.0, 5)
+    massage = capsys.readouterr()
+    assert (massage.out.strip() == 'Product(Samsung Galaxy S23 Ultra, 256GB, Серый цвет, 200MP камера, 180000.0, 5)')
+
+
+def test_str_order(category: Category, first_order: Order, second_order: Order) -> None:
+    assert str(first_order) == 'Заказ: Samsung Galaxy S23 Ultra, Количество: 2, Итоговая стоимость: 360000.0'
+    assert str(second_order) == 'Заказ: Iphone 15, Количество: 4, Итоговая стоимость: 840000.0'
+
+
+def test_order_get_products(category: Category, first_order: Order) -> None:
+    assert first_order.get_products() == [Product("Samsung Galaxy S23 Ultra",
+                                                  "256GB, Серый цвет, 200MP камера",
+                                                  180000.0, 3),
+                                          Product("Iphone 15", "512GB, Gray space",
+                                                  210000.0, 8)]
+
+
+def test_order(category: Category, first_order: Order, third_order: Order) -> None:
+    assert first_order.name == "Samsung Galaxy S23 Ultra"
+    assert first_order.quantity == 2
+    assert first_order.total_price == 360000.0
+
+    assert third_order.name == "Samsung Galaxy S23 Ultra"
+    assert third_order.quantity == ("Не возможно списать товар так как количество "
+                                    "списываемого товара превышает количество в наличии!")
+    assert third_order.total_price == 0

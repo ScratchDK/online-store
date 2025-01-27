@@ -1,6 +1,6 @@
 import pytest
 
-from src.inventory import Product, Category, Smartphone, LawnGrass
+from src.inventory import Product, Category, Smartphone, LawnGrass, Order
 
 
 @pytest.fixture
@@ -57,3 +57,18 @@ def category():
                         ),
                         Product("Iphone 15", "512GB, Gray space", 210000.0, 8)
                     ])
+
+
+@pytest.fixture
+def first_order():
+    return Order("Samsung Galaxy S23 Ultra", 2, 180000.0)
+
+
+@pytest.fixture
+def second_order():
+    return Order("Iphone 15", 4, 210000.0)
+
+
+@pytest.fixture
+def third_order():
+    return Order("Samsung Galaxy S23 Ultra", 10, 180000.0)
