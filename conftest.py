@@ -60,6 +60,11 @@ def category():
 
 
 @pytest.fixture
+def category_empty():
+    return Category("Пустая категория", "Категория без продуктов", [])
+
+
+@pytest.fixture
 def first_order():
     return Order("Samsung Galaxy S23 Ultra", 2, 180000.0)
 

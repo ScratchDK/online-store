@@ -60,10 +60,12 @@ if __name__ == '__main__':
 
     print(category1.products)
 
-    order1 = Order("Samsung Galaxy S23 Ultra", 2, 180000.0)
+    order1 = Order("Samsung Galaxy S23 Ultra", 0, 180000.0)
+    print(str(order1))
+    print()
     print(f"Первое списание: {category1.products}")
 
     order2 = Order("Iphone 15", 4, 210000.0)
-    print(str(order1))
+    print(str(order2))
     print()
     print(f"Второе списание: {category1.products}")
