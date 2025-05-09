@@ -3,6 +3,7 @@ import os
 from typing import Any
 
 from src.abstractions import BaseEntity, BaseProduct
+from src.custom_exceptions import ZeroQuantityError
 from src.mixin import PrintMixin
 
 base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -19,6 +20,10 @@ class Product(BaseProduct, PrintMixin):
     created_products: list = []
 
     def __init__(self, name: str, description: str, price: float, quantity: int):
+
+        if quantity <= 0:
+            raise ValueError("Товар с нулевым количеством не может быть добавлен!")
+
         self.name = name
         self.description = description
         self.__price = price
@@ -121,6 +126,17 @@ class Category(BaseEntity):
         Category.category_count += 1
         self.product_count = len(products)
 
+    def middle_price(self) -> Any:
+        total_price = sum(el.price for el in self.__products)
+        total_quantity = sum(el.quantity for el in self.__products)
+
+        try:
+            result = round(total_price / total_quantity, 2)
+        except ZeroDivisionError:
+            return 0
+        else:
+            return result
+
     def add_product(self, product: Any) -> None:
         if issubclass(product.__class__, Product) is False:
             raise TypeError("Вы пытаетесь добавить не продукт!!")
@@ -187,6 +203,16 @@ class IterationCategory:
 
 class Order(BaseEntity):
     def __init__(self, name: str, quantity: int, price: float):
+        try:
+            if quantity <= 0:
+                raise ZeroQuantityError
+        except ZeroQuantityError as e:
+            print(str(e))
+        else:
+            print("Списание товара прошло успешно!")
+        finally:
+            print("Обработка товара завершена!")
+
         self.products = Category.get_products()
         self.name = name
         self.quantity = self.__check_quantity(quantity)

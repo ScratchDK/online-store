@@ -155,3 +155,20 @@ def test_order(category: Category, first_order: Order, third_order: Order) -> No
     assert third_order.quantity == ("Не возможно списать товар так как количество "
                                     "списываемого товара превышает количество в наличии!")
     assert third_order.total_price == 0
+
+
+def test_empty_product() -> None:
+    with pytest.raises(ValueError) as e:
+        Product("Бракованный товар", "Неверное количество", 1000.0, 0)
+    assert str(e.value) == "Товар с нулевым количеством не может быть добавлен!"
+
+
+def test_middle_price(category: Category, category_empty: Category) -> None:
+    assert category.middle_price() == 30000.0
+    assert category_empty.middle_price() == 0
+
+
+def test_empty_order(capsys) -> None:
+    Order("Samsung Galaxy S23 Ultra", 0, 180000.0)
+    massage = capsys.readouterr()
+    assert (massage.out.strip() == 'Количество товара не может быть нулевым!\nОбработка товара завершена!')
